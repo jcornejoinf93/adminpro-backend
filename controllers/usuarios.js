@@ -3,21 +3,49 @@ const bcrypt = require('bcryptjs');
 const Usuario = require('../models/usuario');
 const { generarJWT } = require('../helpers/jwt');
 
-const getUsuarios = async(req, resp) => {
-    const usuario = await Usuario.find({}, 'nombre email role google', (err, usuariosDB) => {
-        if (err) {
-            return resp.status(400).json({
+const getUsuarios = async(req = request, res = response) => {
+
+    const desde = Number(req.query.desde) || 0;
+    const hasta = Number(req.query.hasta) || 5;
+
+    try {
+
+        //const usuariosDB = await Usuario.find({}, 'nombre email role google')
+        //    .skip(desde)
+        //    .limit(hasta);
+
+        //const contador = await Usuario.count();
+
+        const [usuariosDB, contador] = await Promise.all([
+            Usuario.find({}, 'nombre email role google img')
+            .skip(desde)
+            .limit(hasta),
+            Usuario.countDocuments
+        ]);
+
+        if (usuariosDB.length === 0) {
+            return res.json({
                 ok: false,
-                err
+                msg: 'No existen usuarios en bd'
             });
         }
 
-        return resp.json({
+        res.json({
             ok: true,
             usuariosDB,
-            id_user: req.uid
+            id_user: req.uid,
+            contador
         });
-    });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, contactarse con adm'
+        });
+
+    }
+
 };
 
 const crearUsuario = async(req, resp = response) => {
