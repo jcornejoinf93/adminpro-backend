@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
 const { generarJWT } = require("../helpers/jwt");
+const { googleVerify } = require("../helpers/google-verify");
+const usuario = require("../models/usuario");
 
 const login = async(req = request, res = response) => {
 
@@ -43,9 +45,59 @@ const login = async(req = request, res = response) => {
         });
 
     }
-
 }
 
+const googleSignIn = async(req = request, res = response) => {
+
+    const googleToken = req.body.token;
+
+    try {
+
+        const { name, email, picture } = await googleVerify(googleToken);
+        let usuario;
+
+        const usuarioBD = await Usuario.findOne({ email });
+
+        //Si no existe el usuario en nuestra BD
+        if (!usuarioBD) {
+            usuario = new Usuario({
+                nombre: name,
+                email,
+                password: '@@@',
+                img: picture,
+                google: true
+            });
+        } else {
+            // Existe usuarioen nuestra BD
+            usuario = usuarioBD;
+            usuario.google = true;
+        }
+
+        // Guardar en db
+        usuario.save();
+
+        // Generar JWT
+        const token = await generarJWT(usuario._id);
+
+        res.json({
+            ok: true,
+            msg: 'Google sign in',
+            token
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, revisar logs'
+        });
+
+    }
+
+
+
+};
+
 module.exports = {
-    login
+    login,
+    googleSignIn
 };
