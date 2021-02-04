@@ -59,7 +59,76 @@ creaMedico = async(req = request, res = response) => {
 
 };
 
+const actualizarMedico = async(req = request, res = response) => {
+    const id = req.params.id;
+    const uid = req.uid;
+
+    const campos = {
+        ...req.body,
+        usuario: uid
+    };
+
+
+    try {
+
+        const medicoDB = await Medico.findByIdAndUpdate(id, campos, { new: true });
+
+        if (!medicoDB) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'No existe ese médico en nuestra base de datos'
+            });
+        }
+
+        res.json({
+            ok: true,
+            msg: 'Medico actualizado',
+            medicoDB
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, revisar logs'
+        });
+    }
+};
+
+const eliminarMedico = async(req = request, res = response) => {
+
+    const id = req.params.id;
+
+    try {
+
+        const medicoEliminado = await Medico.findByIdAndDelete(id);
+
+        if (!medicoEliminado) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No existe el id del medico en nuestra base de datos'
+            });
+        }
+
+        res.json({
+            ok: true,
+            msg: 'Medico eliminado',
+            medicoEliminado
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error inesperado, revisar logs'
+        });
+
+    }
+};
+
 module.exports = {
     creaMedico,
-    getMedicos
+    getMedicos,
+    actualizarMedico,
+    eliminarMedico
 };

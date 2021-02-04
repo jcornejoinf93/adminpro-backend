@@ -38,7 +38,6 @@ const crearHospital = async(req = request, res = response) => {
 
     const body = req.body;
     const uid = req.uid;
-    //console.log(uid);
 
     const hospital = new Hospital({
         usuario: uid,
@@ -72,21 +71,76 @@ const crearHospital = async(req = request, res = response) => {
 
 };
 
-const actualizarHospital = (req = request, res = response) => {
+const actualizarHospital = async(req = request, res = response) => {
 
-    res.json({
-        ok: true,
-        msg: 'Se actualiza el hospital'
-    });
+    const id = req.params.id;
+    const body = req.body;
 
+    try {
+
+        const hospitalDB = await Hospital.findByIdAndUpdate(id, body, { new: true });
+
+        if (!hospitalDB) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No existe ese id en base de datos'
+            });
+        }
+        res.json({
+            ok: true,
+            msg: 'Se actualiza el hospital',
+            hospitalDB
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.json({
+            ok: false,
+            msg: 'Error inesperado, validar logs',
+            error
+        });
+
+    }
 };
 
-const eliminarHospital = (req = request, res = response) => {
+const eliminarHospital = async(req = request, res = response) => {
 
-    res.json({
-        ok: true,
-        msg: 'Se elimina el hospital'
-    });
+    const id = req.params.id;
+
+    try {
+
+        await Hospital.findByIdAndDelete(id, (err, hospitalEliminado) => {
+            if (err) {
+                return res.json({
+                    ok: false,
+                    err
+                });
+            }
+
+            if (!hospitalEliminado) {
+                return res.json({
+                    ok: false,
+                    msg: 'No existe el id del hospital'
+                });
+            }
+
+            res.json({
+                ok: true,
+                msg: 'Se elimina el hospital',
+                hospitalEliminado
+            });
+        });
+
+
+
+
+    } catch (error) {
+        console.log(error);
+        return res.json({
+            ok: false,
+            msg: 'Error inesperado, revisar logs'
+        });
+    }
 
 };
 
