@@ -107,11 +107,11 @@ const actualizarUsuario = async(req = request, resp = response) => {
             });
         }
 
-        const campos = req.body;
-        delete campos.password;
-        delete campos.google;
+        const { password, google, email, ...campos } = req.body;
+        //delete campos.password;
+        //delete campos.google;
 
-        if (usuarioDB.mail !== campos.mail) {
+        if (usuarioDB.email !== campos.email) {
             const existeEmail = await Usuario.findOne({ email: req.body.email });
             if (existeEmail) {
                 return resp.status(400).json({
@@ -121,14 +121,21 @@ const actualizarUsuario = async(req = request, resp = response) => {
             }
         }
 
-        //campos.email = req.body.email;
+        if (!usuarioDB.google) {
+            campos.email = req.body.email;
+        } else if (usuarioDB.email !== email) {
+            return resp.status(400).json({
+                ok: false,
+                msg: 'No es posible editar email de google'
+            });
+        }
+
         const usuarioActualizado = await Usuario.findByIdAndUpdate(uid, campos, { new: true });
 
         return resp.json({
             ok: true,
             usuarioActualizado
         });
-
 
     } catch (error) {
         console.log(error);
