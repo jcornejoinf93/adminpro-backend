@@ -10,17 +10,17 @@ const getUsuarios = async(req = request, res = response) => {
 
     try {
 
-        //const usuariosDB = await Usuario.find({}, 'nombre email role google')
-        //    .skip(desde)
-        //    .limit(hasta);
+        // const usuariosDB = await Usuario.find({}, 'nombre email role google img')
+        //     .skip(desde)
+        //     .limit(hasta);
 
-        //const contador = await Usuario.count();
+        // const total = await Usuario.count();
 
-        const [usuariosDB, contador] = await Promise.all([
+        const [usuariosDB, total] = await Promise.all([
             Usuario.find({}, 'nombre email role google img')
             .skip(desde)
             .limit(hasta),
-            Usuario.countDocuments
+            Usuario.countDocuments()
         ]);
 
         if (usuariosDB.length === 0) {
@@ -34,7 +34,8 @@ const getUsuarios = async(req = request, res = response) => {
             ok: true,
             usuariosDB,
             id_user: req.uid,
-            contador
+            total
+
         });
 
     } catch (error) {
@@ -111,15 +112,17 @@ const actualizarUsuario = async(req = request, resp = response) => {
         //delete campos.password;
         //delete campos.google;
 
-        if (usuarioDB.email !== campos.email) {
+        if (usuarioDB.email !== email) {
+
             const existeEmail = await Usuario.findOne({ email: req.body.email });
             if (existeEmail) {
                 return resp.status(400).json({
                     ok: false,
-                    msg: 'El email ingresado, es utilizado por otro usuario, favor intentar con otro email.'
+                    msg: 'Ya existe un usuario con ese email'
                 });
             }
         }
+
 
         if (!usuarioDB.google) {
             campos.email = req.body.email;

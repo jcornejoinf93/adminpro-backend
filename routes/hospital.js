@@ -10,7 +10,7 @@ const { validarCampos } = require('../middelwares/validarCampos');
 
 const router = Router();
 
-router.get('/', getHospital);
+router.get('/', validarJWT, getHospital);
 router.post('/', [
         validarJWT,
         check('nombre', 'El nombre del hospital es obligatorio').not().isEmpty(),

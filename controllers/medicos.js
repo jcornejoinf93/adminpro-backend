@@ -1,54 +1,62 @@
 const { request, response } = require('express');
 const Medico = require('../models/medico');
 
-getMedicos = async(req = request, res = response) => {
+const getMedicos = async(req, res = response) => {
+
+    const medicosDB = await Medico.find()
+        .populate('usuario', 'nombre img')
+        .populate('hospital', 'nombre img')
+
+    if (medicosDB.length === 0) {
+        return res.json({
+            ok: false,
+            msg: 'No existen medicos en BD'
+        });
+    }
+
+
+    res.json({
+        ok: true,
+        medicosDB
+    })
+}
+
+const getMedicoPorId = async(req = request, res = response) => {
+    const id = req.params.id;
 
     try {
-
-        medicosDB = await Medico.find()
+        const medicoDB = await Medico.findById(id)
             .populate('usuario', 'nombre img')
             .populate('hospital', 'nombre img')
 
-        if (medicosDB.length === 0) {
-            return res.json({
-                ok: false,
-                msg: 'No existen medicos en BD'
-            });
-        }
-
         res.json({
             ok: true,
-            medicosDB
+            medicoDB
         });
-
     } catch (error) {
         console.log(error);
-        return res.status(500).json({
+        res.status(500).json({
             ok: false,
-            msg: 'Error inesperado, revisar logs'
+            msg: 'Error inesperado'
         });
 
     }
-};
+}
 
-creaMedico = async(req = request, res = response) => {
+const creaMedico = async(req = request, res = response) => {
 
     const uid = req.uid;
-
     const medico = new Medico({
         usuario: uid,
         ...req.body
     });
 
     try {
-
         const medicoDB = await medico.save();
-
         res.json({
             ok: true,
             medico: medicoDB
         });
-
     } catch (error) {
         console.log(error);
         return res.status(400).json({
@@ -56,8 +64,10 @@ creaMedico = async(req = request, res = response) => {
             msg: 'Error inesperado, revisar logs'
         });
     }
-
 };
+
+
+
 
 const actualizarMedico = async(req = request, res = response) => {
     const id = req.params.id;
@@ -130,5 +140,6 @@ module.exports = {
     creaMedico,
     getMedicos,
     actualizarMedico,
-    eliminarMedico
+    eliminarMedico,
+    getMedicoPorId
 };

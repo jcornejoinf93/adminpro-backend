@@ -7,7 +7,7 @@ const getHospital = async(req = request, res = response) => {
     try {
 
         const hospitalesDB = await Hospital.find()
-            .populate('usuario', 'nombre img')
+            .populate('usuario', 'nombre img');
 
         if (hospitalesDB.length === 0) {
             return res.status(404).json({
@@ -30,8 +30,6 @@ const getHospital = async(req = request, res = response) => {
         });
 
     }
-
-
 };
 
 const crearHospital = async(req = request, res = response) => {

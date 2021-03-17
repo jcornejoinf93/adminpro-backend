@@ -19,17 +19,33 @@ const actualizarImagen = async(tipo, id, nombreArchivo) => {
     switch (tipo) {
         case 'medicos':
             const medico = await Medico.findById(id);
-            if (!medico._id) {
+            if (!medico) {
                 console.log('El id no pertenece a un medico');
                 return false;
             }
             const pathViejoMedico = `./uploads/medicos/${ medico.img }`;
-            borrarImagen(pathViejoMedicoo);
+            borrarImagen(pathViejoMedico);
 
             medico.img = nombreArchivo;
             await medico.save();
             return true;
             break;
+
+            // case 'medicos':
+            //     const medico = await Medico.findById(id);
+            //     if (!medico) {
+            //         console.log('No es un médico por id');
+            //         return false;
+            //     }
+
+            //     pathViejo = `./uploads/medicos/${ medico.img }`;
+            //     borrarImagen(pathViejo);
+
+            //     medico.img = nombreArchivo;
+            //     await medico.save();
+            //     return true;
+
+            //     break;
 
         case 'hospitales':
             const hospital = await Hospital.findById(id);
