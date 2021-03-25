@@ -6,7 +6,7 @@ Rutas: /api/usuarios
 const { Router } = require('express');
 const { check } = require('express-validator');
 const { getUsuarios, crearUsuario, actualizarUsuario, eliminaUsuario } = require('../controllers/usuarios');
-const { validarJWT } = require('../middelwares/validar-jwt');
+const { validarJWT, validarADMIN_ROLE, validarADMIN_ROLE_o_mismoUsuario } = require('../middelwares/validar-jwt');
 const { validarCampos } = require('../middelwares/validarCampos');
 
 const router = Router();
@@ -21,7 +21,7 @@ router.post('/', [
     ],
     crearUsuario);
 
-router.put('/:id', [validarJWT], [
+router.put('/:id', [validarJWT, validarADMIN_ROLE_o_mismoUsuario], [
         check('nombre', 'Campo nombre es obligatorio').not().isEmpty(),
         check('email', 'Campo email es obligatorio').isEmail(),
         check('role', 'Campo role es obligatorio').not().isEmpty(),
@@ -29,7 +29,7 @@ router.put('/:id', [validarJWT], [
     ],
     actualizarUsuario);
 
-router.delete('/:id', [validarJWT], eliminaUsuario);
+router.delete('/:id', [validarJWT, validarADMIN_ROLE], eliminaUsuario);
 
 
 module.exports = router;

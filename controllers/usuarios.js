@@ -135,7 +135,7 @@ const actualizarUsuario = async(req = request, resp = response) => {
 
         const usuarioActualizado = await Usuario.findByIdAndUpdate(uid, campos, { new: true });
 
-        return resp.json({
+        resp.json({
             ok: true,
             usuarioActualizado
         });
@@ -172,7 +172,7 @@ const eliminaUsuario = async(req = request, resp = response) => {
                 });
             }
 
-            return resp.json({
+            resp.json({
                 ok: true,
                 usuarioBorrado
             });
